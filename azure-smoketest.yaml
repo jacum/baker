@@ -1,0 +1,29 @@
+pool: 'hetzner04'
+
+variables:
+  - name: CACHE
+    value: $(HOME)/.cache
+  - name: IVY_HOME
+    value: $(Pipeline.Workspace)/.ivy2
+
+steps:
+  - task: CacheBeta@1
+    displayName: Package resolver cache
+    inputs:
+      key: 'cache'
+      path: '$(CACHE)'
+
+  - task: CacheBeta@1
+    displayName: Ivy resolver cache
+    inputs:
+      key: 'ivy_home'
+      path: '$(IVY_HOME)'
+
+  - script: |
+      sbt -Divy.home=${IVY_HOME} -Dsbt.ivy.home=${IVY_HOME} clean test
+    displayName: 'Building and testing main Baker'
+
+  - script: |
+      sbt -Divy.home=${IVY_HOME} -Dsbt.ivy.home=${IVY_HOME} "project bakery-integration-tests; buildExampleDocker; test"
+    displayName: 'Building and testing examples'
+
