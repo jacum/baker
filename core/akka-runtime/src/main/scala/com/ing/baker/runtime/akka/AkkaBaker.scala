@@ -11,7 +11,6 @@ import com.ing.baker.il.failurestrategy.ExceptionStrategyOutcome
 import com.ing.baker.runtime.akka.actor._
 import com.ing.baker.runtime.akka.actor.process_index.ProcessIndexProtocol._
 import com.ing.baker.runtime.akka.actor.process_instance.ProcessInstanceProtocol.{Initialized, InstanceState, Uninitialized}
-import com.ing.baker.runtime.akka.actor.recipe_manager.RecipeManagerProtocol
 import com.ing.baker.runtime.akka.internal.LocalInteractions
 import com.ing.baker.runtime.common.BakerException._
 import com.ing.baker.runtime.common.SensoryEventStatus
@@ -20,8 +19,10 @@ import com.ing.baker.runtime.{javadsl, scaladsl}
 import com.ing.baker.types.Value
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-
 import java.util.{List => JavaList}
+
+import com.ing.baker.runtime.akka.actor.recipes.Recipes
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.postfixOps
@@ -67,11 +68,8 @@ class AkkaBaker private[runtime](config: AkkaBakerConfig) extends scaladsl.Baker
 
   import config.system
 
-  val recipeManager: ActorRef =
-    config.bakerActorProvider.createRecipeManagerActor()
-
   val processIndexActor: ActorRef =
-    config.bakerActorProvider.createProcessIndexActor(config.interactions, recipeManager)
+    config.bakerActorProvider.createProcessIndexActor(config.interactions, config.recipes)
 
   /**
    * Adds a recipe to baker and returns a recipeId for the recipe.

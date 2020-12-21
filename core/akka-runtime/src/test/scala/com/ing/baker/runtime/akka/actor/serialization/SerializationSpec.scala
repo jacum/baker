@@ -13,10 +13,6 @@ import com.ing.baker.runtime.akka.actor.process_index.ProcessIndexProto._
 import com.ing.baker.runtime.akka.actor.process_index.{ProcessIndex, ProcessIndexProtocol}
 import com.ing.baker.runtime.akka.actor.process_instance.ProcessInstanceProto._
 import com.ing.baker.runtime.akka.actor.process_instance.ProcessInstanceProtocol
-import com.ing.baker.runtime.akka.actor.recipe_manager.RecipeManager.RecipeAdded
-import com.ing.baker.runtime.akka.actor.recipe_manager.RecipeManagerProto._
-import com.ing.baker.runtime.akka.actor.recipe_manager.RecipeManagerProtocol.GetRecipe
-import com.ing.baker.runtime.akka.actor.recipe_manager.{RecipeManager, RecipeManagerProtocol}
 import com.ing.baker.runtime.common.SensoryEventStatus
 import com.ing.baker.runtime.scaladsl.{EventInstance, EventMoment, RecipeInstanceState, SensoryEventResult}
 import com.ing.baker.runtime.serialization.Encryption.{AESEncryption, NoEncryption}
@@ -298,7 +294,6 @@ object SerializationSpec {
   object RecipeManager {
 
     import IntermediateLanguage._
-    import com.ing.baker.runtime.akka.actor.recipe_manager.RecipeManagerProtocol._
 
     implicit val addRecipeGen: Gen[AddRecipe] = recipeGen.map(AddRecipe)
     implicit val getRecipeGen: Gen[GetRecipe] = recipeIdGen.map(GetRecipe)

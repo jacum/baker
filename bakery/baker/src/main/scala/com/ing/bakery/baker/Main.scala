@@ -9,6 +9,7 @@ import akka.cluster.Cluster
 import akka.stream.{ActorMaterializer, Materializer}
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import com.ing.baker.runtime.akka.AkkaBakerConfig.KafkaEventSinkSettings
+import com.ing.baker.runtime.akka.actor.recipes.LocalDirectoryRecipes
 import com.ing.baker.runtime.akka.{AkkaBaker, AkkaBakerConfig}
 import com.ing.bakery.interaction.BakeryHttp
 import com.typesafe.config.ConfigFactory
@@ -63,16 +64,17 @@ object Main extends IOApp with LazyLogging {
     val mainResource = for {
       interactionHttpClient <- BlazeClientBuilder[IO](connectionPool, tlsConfig).withCheckEndpointAuthentication(false).resource
       serviceDiscovery <- ServiceDiscovery.resource(interactionHttpClient, k8s, scope)
+      recipes <- LocalDirectoryRecipes.resource(recipeDirectory)
       eventSink <- KafkaEventSink.resource(eventSinkSettings)
       baker = AkkaBaker
         .withConfig(AkkaBakerConfig(
           interactions = serviceDiscovery.interactions,
+          recipes = recipes,
           bakerActorProvider = AkkaBakerConfig.bakerProviderFrom(config),
           timeouts = AkkaBakerConfig.Timeouts.from(config),
           bakerValidationSettings = AkkaBakerConfig.BakerValidationSettings.from(config),
         )(system))
       _ <- Resource.liftF(eventSink.attach(baker))
-      _ <- Resource.liftF(RecipeLoader.loadRecipesIntoBaker(recipeDirectory, baker))
       _ <- Resource.liftF(IO.async[Unit] { callback =>
         Cluster(system).registerOnMemberUp {
           callback(Right(()))

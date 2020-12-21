@@ -84,7 +84,7 @@ object InteractionDiscovery extends LazyLogging {
                localhostPorts: List[Int],
                podLabelSelector: Option[LabelSelector])(implicit contextShift: ContextShift[IO], timer: Timer[IO], actorSystem: ActorSystem): Resource[IO, InteractionDiscovery] = {
 
-    def watchSource(discovery: InteractionDiscovery): Source[K8SWatchEvent[Service], UniqueKillSwitch] = {
+    def watchSource: Source[K8SWatchEvent[Service], UniqueKillSwitch] = {
       val watchFilter: ListOptions = ListOptions(labelSelector = podLabelSelector)
       /*, timeoutSeconds = Some(45)*/ // Note, we decided to go for long connections against renewing every 45 seconds due an issue with OpenShift 3.11 not being able to respond to calls with resourceVersion as supposed to be
 
@@ -107,7 +107,7 @@ object InteractionDiscovery extends LazyLogging {
     def updateSink(interactionDiscovery: InteractionDiscovery): Sink[K8SWatchEvent[Service], Future[Done]] = {
       Sink.foreach[K8SWatchEvent[Service]] { event =>
         interactionDiscovery.update(event).recover { case e =>
-          logger.error("Failure when updating the services in the ConfigMap Discovery component", e)
+          logger.error(s"Failure when updating interactions from event $event", e)
         }.unsafeToFuture()
       }
     }
@@ -120,7 +120,7 @@ object InteractionDiscovery extends LazyLogging {
         interactionHttpClient
       )
       killSwitch <- IO {
-        watchSource(discovery).toMat(updateSink(discovery))(Keep.left).run()
+        watchSource.toMat(updateSink(discovery))(Keep.left).run()
       }
     } yield (discovery, killSwitch)) { case (_, hook) => IO(hook.shutdown()) }.map(_._1)
   }

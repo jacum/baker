@@ -18,7 +18,7 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.duration._
 
-class RecipeLoaderSpec extends AnyFunSuite with Matchers with BeforeAndAfterAll {
+class LocalFileRecipesSpec extends AnyFunSuite with Matchers with BeforeAndAfterAll {
 
   private val plainRecipeFile = File.createTempFile("tmp", "recipe-plain")
   private val gzippedRecipeFile = File.createTempFile("tmp", "recipe-gzipped")

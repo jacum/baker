@@ -32,6 +32,7 @@ object Dependencies {
   val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
 
   val akkaStream = "com.typesafe.akka" %% "akka-stream" % akkaVersion
+  val akkaStreamFile = "com.lightbend.akka" %% "akka-stream-alpakka-file" % "2.0.2"
   val akkaProtobuf = "com.typesafe.akka" %% "akka-protobuf" % akkaVersion
   val akkaPersistence = "com.typesafe.akka" %% "akka-persistence" % akkaVersion
   val akkaDiscovery = "com.typesafe.akka" %% "akka-discovery" % akkaVersion
@@ -66,6 +67,7 @@ object Dependencies {
 
   val prometheus = "io.prometheus" % "simpleclient_hotspot" % "0.9.0"
   val prometheusJmx = "io.prometheus.jmx" % "collector" % "0.14.0"
+  val sensors =  "nl.pragmasoft.sensors" %% "sensors-core" % "0.0.2"
 
   val cassandraUnit = "org.cassandraunit" % "cassandra-unit" % "4.3.1.0"
   val cassandraDriverCore = "com.datastax.oss" % "java-driver-core" % "4.9.0"

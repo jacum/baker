@@ -112,7 +112,7 @@ object ProcessInstanceEventSourcing {
 abstract class ProcessInstanceEventSourcing[P : Identifiable, T : Identifiable, S, E](
     val petriNet: PetriNet[P, T],
     encryption: Encryption,
-    eventSourceFn: T => (S => E => S)) extends PersistentActor {
+    eventSourceFn: T => (S => E => S)) extends PersistentActor with PersistenceActorMetrics {
 
   protected implicit val system: ActorSystem = context.system
 

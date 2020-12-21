@@ -136,6 +136,7 @@ lazy val `baker-akka-runtime` = project.in(file("core/akka-runtime"))
     libraryDependencies ++=
       compileDeps(
         akkaActor,
+        akkaStreamFile,
         akkaPersistence,
         akkaPersistenceQuery,
         akkaCluster,
@@ -151,7 +152,8 @@ lazy val `baker-akka-runtime` = project.in(file("core/akka-runtime"))
         scalapbRuntime,
         protobufJava,
         slf4jApi,
-        scalaLogging
+        scalaLogging,
+        sensors
       ) ++ testDeps(
         akkaStream,
         akkaTestKit,
@@ -273,6 +275,7 @@ lazy val `baker-unified` = project.in(file("bakery/baker-unified"))
       cassandraDriverMetrics,
       prometheus,
       prometheusJmx,
+      sensors,
       skuber
     ) ++ testDeps(
       slf4jApi,

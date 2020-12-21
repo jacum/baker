@@ -15,7 +15,6 @@ import com.ing.baker.runtime.akka.actor.ClusterBakerActorProvider._
 import com.ing.baker.runtime.akka.actor.process_index.ProcessIndex.ActorMetadata
 import com.ing.baker.runtime.akka.actor.process_index.ProcessIndexProtocol._
 import com.ing.baker.runtime.akka.actor.process_index._
-import com.ing.baker.runtime.akka.actor.recipe_manager.RecipeManager
 import com.ing.baker.runtime.akka.actor.serialization.BakerSerializable
 import com.ing.baker.runtime.akka.internal.LocalInteractions
 import com.ing.baker.runtime.model.InteractionsF
@@ -73,7 +72,7 @@ class ClusterBakerActorProvider(
     configuredEncryption: Encryption
   ) extends BakerActorProvider with LazyLogging {
 
-  private def initializeCluster()(implicit actorSystem: ActorSystem): Unit = {
+  def init()(implicit actorSystem: ActorSystem): Unit = {
     /**
      * Join cluster after waiting for the persistenceInit actor, otherwise terminate here.
      */
@@ -111,8 +110,6 @@ class ClusterBakerActorProvider(
   }
 
   override def createRecipeManagerActor()(implicit actorSystem: ActorSystem): ActorRef = {
-
-    initializeCluster()
 
     val singletonManagerProps = ClusterSingletonManager.props(
       RecipeManager.props(),

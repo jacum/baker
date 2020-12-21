@@ -4,6 +4,7 @@ import akka.actor.{ActorSystem, Address, AddressFromURIString}
 import cats.data.NonEmptyList
 import cats.effect.IO
 import com.ing.baker.runtime.akka.AkkaBakerConfig.BakerValidationSettings
+import com.ing.baker.runtime.akka.actor.recipes.{LocalDirectoryRecipes, Recipes}
 import com.ing.baker.runtime.akka.actor.{BakerActorProvider, ClusterBakerActorProvider, LocalBakerActorProvider}
 import com.ing.baker.runtime.akka.internal.LocalInteractions
 import com.ing.baker.runtime.model.InteractionsF
@@ -17,6 +18,7 @@ import scala.concurrent.duration._
 case class AkkaBakerConfig(
                             bakerActorProvider: BakerActorProvider,
                             interactions: InteractionsF[IO],
+                            recipes: Recipes[IO],
                             timeouts: AkkaBakerConfig.Timeouts,
                             bakerValidationSettings: BakerValidationSettings
                           )(implicit val system: ActorSystem)
@@ -79,7 +81,8 @@ object AkkaBakerConfig extends LazyLogging {
       timeouts = Timeouts.default,
       bakerValidationSettings = BakerValidationSettings.default,
       bakerActorProvider = localProvider,
-      interactions = interactions
+      interactions = interactions,
+      recipes = LocalDirectoryRecipes()
     )(actorSystem)
   }
 
@@ -98,7 +101,8 @@ object AkkaBakerConfig extends LazyLogging {
       timeouts = Timeouts.default,
       bakerValidationSettings = BakerValidationSettings.default,
       bakerActorProvider = clusterProvider,
-      interactions = interactions
+      interactions = interactions,
+      recipes = LocalDirectoryRecipes()
     )(actorSystem)
   }
 
@@ -110,7 +114,8 @@ object AkkaBakerConfig extends LazyLogging {
       timeouts = Timeouts.from(config),
       bakerValidationSettings = BakerValidationSettings.from(config),
       bakerActorProvider = bakerProviderFrom(config),
-      interactions = interactions
+      interactions = interactions,
+      recipes = LocalDirectoryRecipes()
     )(actorSystem)
   }
 

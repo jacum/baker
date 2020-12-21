@@ -1,14 +1,18 @@
 package com.ing.bakery.baker
 
+import java.io.File
+import java.net.InetSocketAddress
+import java.util
+
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
-import cats.Id
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import com.ing.baker.recipe.javadsl.Interaction
 import com.ing.baker.runtime.akka.AkkaBakerConfig.KafkaEventSinkSettings
+import com.ing.baker.runtime.akka.actor.recipes.LocalDirectoryRecipes
 import com.ing.baker.runtime.akka.internal.LocalInteractions
 import com.ing.baker.runtime.akka.{AkkaBaker, AkkaBakerConfig}
-import com.ing.baker.runtime.scaladsl.{InteractionInstance, InteractionInstanceF}
+import com.ing.baker.runtime.scaladsl.InteractionInstanceF
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 import net.ceedubs.ficus.Ficus._
@@ -19,11 +23,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import skuber.LabelSelector
 import skuber.api.client.KubernetesClient
 
-import java.io.File
-import java.net.InetSocketAddress
-import java.util
 import scala.collection.JavaConverters._
-import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 
 
@@ -95,15 +95,19 @@ object Main extends IOApp with LazyLogging {
             .map { kv => LabelSelector(LabelSelector.IsEqualRequirement(kv(0), kv(1))) }
         )
 
+        recipes <- LocalDirectoryRecipes.resource(
+          path = configPath
+        )
+
         baker = AkkaBaker.withConfig(AkkaBakerConfig(
           interactions = interactionDiscovery,
+          recipes = recipes,
           bakerActorProvider = AkkaBakerConfig.bakerProviderFrom(config),
           timeouts = AkkaBakerConfig.Timeouts.from(config),
           bakerValidationSettings = AkkaBakerConfig.BakerValidationSettings.from(config)
         )(system))
 
         _ <- Resource.liftF(eventSink.attach(baker))
-        _ <- Resource.liftF(RecipeLoader.loadRecipesIntoBaker(configPath, baker))
         _ <- Resource.liftF(IO.async[Unit] { callback =>
           Cluster(system).registerOnMemberUp {
             logger.info("Akka cluster is now up")

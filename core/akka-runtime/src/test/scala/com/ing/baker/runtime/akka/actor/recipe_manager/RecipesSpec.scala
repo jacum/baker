@@ -7,10 +7,9 @@ import akka.pattern.ask
 import com.ing.baker.BakerRuntimeTestBase
 import com.ing.baker.compiler.RecipeCompiler
 import com.ing.baker.recipe.TestRecipe
-import com.ing.baker.runtime.akka.actor.recipe_manager.RecipeManagerProtocol._
 import com.typesafe.config.{Config, ConfigFactory}
 
-object RecipeManagerSpec {
+object RecipesSpec {
   val config: Config = ConfigFactory.parseString(
     """
       |akka.persistence.journal.plugin = "inmemory-journal"
@@ -19,13 +18,14 @@ object RecipeManagerSpec {
     """.stripMargin)
 }
 
-class RecipeManagerSpec extends BakerRuntimeTestBase {
+class RecipesSpec extends BakerRuntimeTestBase {
 
   override def actorSystemName = "RecipeManagerSpec"
 
-  "The recipe manager" should {
-    "add a recipe to the list when an AddRecipe message is received" in {
+  "The recipes" should {
+    "add a recipe to the list when a new .recipe file appears is received" in {
       val compiledRecipe = RecipeCompiler.compileRecipe(TestRecipe.getRecipe("AddRecipeRecipe"))
+
       val recipeManager: ActorRef = defaultActorSystem.actorOf(RecipeManager.props(), s"recipeManager-${UUID.randomUUID().toString}")
 
       for {

@@ -5,7 +5,6 @@ import cats.effect.IO
 import com.ing.baker.runtime.akka.actor.process_index.ProcessIndex
 import com.ing.baker.runtime.akka.actor.process_index.ProcessIndex.ActorMetadata
 import com.ing.baker.runtime.akka.actor.process_index.ProcessIndexProtocol.{GetIndex, Index}
-import com.ing.baker.runtime.akka.actor.recipe_manager.RecipeManager
 import com.ing.baker.runtime.akka.internal.LocalInteractions
 import com.ing.baker.runtime.model.InteractionsF
 import com.ing.baker.runtime.serialization.Encryption
@@ -33,9 +32,6 @@ class LocalBakerActorProvider(
       ))
   }
 
-  override def createRecipeManagerActor()(implicit actorSystem: ActorSystem): ActorRef = {
-    actorSystem.actorOf(RecipeManager.props())
-  }
 
   override def getAllProcessesMetadata(actorRef: ActorRef)(implicit system: ActorSystem, timeout: FiniteDuration): Seq[ActorMetadata] = {
     import akka.pattern.ask
